@@ -8,6 +8,7 @@ public class TileController : MonoBehaviour
 
    private BoardManager board;
    private SpriteRenderer render;
+   private GameFlowManager game;
 
    private static readonly Color selectedColor = new Color(0.5f, 0.5f, 0.5f);
    private static readonly Color normalColor = Color.white;
@@ -38,6 +39,7 @@ public class TileController : MonoBehaviour
    {
        board = BoardManager.Instance;
        render = GetComponent<SpriteRenderer>();
+       game = GameFlowManager.Instance;
    }
 
    public void ChangeId(int id, int x, int y)
@@ -51,7 +53,7 @@ public class TileController : MonoBehaviour
    private void OnMouseDown()
    {
        // Non Selectable conditions
-       if (render.sprite == null || board.IsAnimating)
+       if (render.sprite == null || board.IsAnimating || game.IsGameOver)
        {
            return;
        }
