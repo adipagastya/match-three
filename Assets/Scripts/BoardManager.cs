@@ -236,6 +236,7 @@ public class BoardManager : MonoBehaviour
 
    private void ProcessDrop()
    {
+       StartCoroutine(DropTiles(droppingTiles, ProcessDestroyAndFill));
        Dictionary<TileController, int> droppingTiles = GetAllDrop();
    }
 
@@ -287,6 +288,59 @@ public class BoardManager : MonoBehaviour
            tiles[tileIndex.x, tileIndex.y - pair.Value] = temp;
 
            temp.ChangeId(temp.id, tileIndex.x, tileIndex.y - pair.Value);
+       }
+
+       yield return null;
+
+       onCompleted?.Invoke();
+   }
+
+   #endregion
+
+   #region Destroy & Fill
+
+   private void ProcessDestroyAndFill()
+   {
+       List<TileController>destroyedTiles = GetAllDestroyed();
+   }
+
+   private List<TileController> GetAllDestroyed()
+   {
+       List<TileController> destroyedTiles = new List<TileController>();
+
+       for (int x = 0; x < size.x; x++)
+       {
+           for (int y = 0; y < size.y; y++)
+           {
+               if (tiles[x, y].IsDestroyed)
+               {
+                   destroyedTiles.Add(tiles[x, y]);
+               }
+           }
+       }
+
+       return destroyedTiles;
+   }
+
+   private IEnumerator DestroyAndFillTiles(List<TileController> destroyedTiles, System.Action onCompleted)
+   {
+       List<int> highestIndex = new List<int>();
+
+       for (int i = 0; i < size.x; i++)
+       {
+           highestIndex.Add(size.y - 1);
+       }
+
+       float spawnHeight = endPosition.y + tilePrefab.GetComponent<SpriteRenderer>().size.y + offsetTile.y;
+
+       foreach (TileController tile in destroyedTiles)
+       {
+           Vector2Int tileIndex = GetTileIndex(tile);
+           Vector2Int targetIndex = new Vector2Int(tileIndex.x, highestIndex[tileIndex.x]);
+           highestIndex[tileIndex.x]--;
+
+           tile.transform.position = new Vector2(tile.transform.position.x, spawnHeight);
+           tile.GenerateRandomTile(targetIndex.x, targetIndex.y);
        }
 
        yield return null;

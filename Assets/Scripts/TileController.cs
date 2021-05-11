@@ -277,4 +277,12 @@ public class TileController : MonoBehaviour
 
        onCompleted?.Invoke();
    }
+
+   public void GenerateRandomTile(int x, int y)
+   {
+       transform.localScale = sizeNormal;
+       IsDestroyed = false;
+
+       ChangeId(Random.Range(0, board.tileTypes.Count), x, y);
+   }
 }
