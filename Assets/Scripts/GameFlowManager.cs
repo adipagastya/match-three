@@ -14,7 +14,7 @@ public class GameFlowManager : MonoBehaviour
         {
             if (_instance == null)
             {
-                _instance = FindObjectType<GameFlowManager>();
+                _instance = FindObjectOfType<GameFlowManager>();
 
                 if (_instance == null)
                 {
