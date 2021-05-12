@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class BoardManager : MonoBehaviour
 {
+    #region Singleton
+
     private static BoardManager _instance = null;
 
     public static BoardManager Instance 
@@ -22,11 +24,13 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    #endregion
+
     public bool IsAnimating
     {
         get
         {
-            return IsSwapping || IsSwapping; 
+            return IsProcessing || IsSwapping; 
         }
     }
 
@@ -49,18 +53,28 @@ public class BoardManager : MonoBehaviour
 
     private int combo;
 
+    #region Process
+
     public void Process()
     {
        IsProcessing = true;
-       ProcessMatches();
+
        combo = 0;
+       ProcessMatches();
     }
+
+    #endregion
 
     private void Start()
     {
         Vector2 tileSize = tilePrefab.GetComponent<SpriteRenderer>().size;
         CreateBoard(tileSize);
+
+        IsProcessing = false;
+        IsSwapping = false;
     }
+
+    #region Generate
 
     private void CreateBoard(Vector2 tileSize)
     {
@@ -108,6 +122,8 @@ public class BoardManager : MonoBehaviour
 
         return possibleId;
     }
+
+    #endregion
 
     #region Swapping
 
@@ -193,7 +209,6 @@ public class BoardManager : MonoBehaviour
    private void ProcessMatches()
    {
        List<TileController> matchingTiles = GetAllMatches();
-       StartCoroutine(ClearMatches(matchingTiles, ProcessDrop));
 
        // stop locking if no match found
        if (matchingTiles == null || matchingTiles.Count == 0)
@@ -204,6 +219,8 @@ public class BoardManager : MonoBehaviour
 
        combo++;
        ScoreManager.Instance.IncrementCurrentScore(matchingTiles.Count, combo);
+       
+       StartCoroutine(ClearMatches(matchingTiles, ProcessDrop));
    }
 
    private IEnumerator ClearMatches(List<TileController> matchingTiles, System.Action onCompleted)
@@ -242,8 +259,9 @@ public class BoardManager : MonoBehaviour
 
    private void ProcessDrop()
    {
-       StartCoroutine(DropTiles(droppingTiles, ProcessDestroyAndFill));
        Dictionary<TileController, int> droppingTiles = GetAllDrop();
+
+       StartCoroutine(DropTiles(droppingTiles, ProcessDestroyAndFill));
    }
 
    private Dictionary<TileController, int> GetAllDrop()
@@ -307,8 +325,9 @@ public class BoardManager : MonoBehaviour
 
    private void ProcessDestroyAndFill()
    {
+       List<TileController> destroyedTiles = GetAllDestroyed();
+
        StartCoroutine(DestroyAndFillTiles(destroyedTiles, ProcessReposition));
-       List<TileController>destroyedTiles = GetAllDestroyed();
    }
 
    private List<TileController> GetAllDestroyed()

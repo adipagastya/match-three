@@ -30,8 +30,6 @@ public class TileController : MonoBehaviour
 
    private void Start()
    {
-       IsProcessing = false;
-       IsSwapping = false;
        IsDestroyed = false;
    }
 
